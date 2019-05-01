@@ -8,10 +8,21 @@ namespace CityInfo.API.Controllers
     using CityInfo.API.Models;
     using Microsoft.AspNetCore.JsonPatch;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
 
     [Route("api/cities")]
     public class PointsOfInterestController : Controller
     {
+        private ILogger<PointsOfInterestController> _logger;
+
+        public PointsOfInterestController(ILogger<PointsOfInterestController> logger)
+        {
+            _logger = logger;
+
+            // Voorkeur heeft via constructor dependency injection.
+            // Direct via de container een instantie opvragen: HttpContext.RequestServices.GetService()
+        }
+
         [HttpGet("{cityId}/pointsofinterest")]
         public IActionResult GetPointsOfInterest(int cityId)
         {
@@ -28,21 +39,33 @@ namespace CityInfo.API.Controllers
         [HttpGet("{cityId}/pointsofinterest/{id}", Name = "GetPointOfInterest")]
         public IActionResult GetPointOfInterest(int cityId, int id)
         {
-            var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
-
-            if (city == null)
+            try
             {
-                return NotFound();
+                // test exception handling..
+                throw new Exception("Exception sample");
+                //
+                var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
+
+                if (city == null)
+                {
+                    _logger.LogInformation($"City with id {cityId} was not found wehn accessing points of interest.");
+                    return NotFound();
+                }
+
+                var pointOfInterest = city.PointsOfInterest.FirstOrDefault(p => p.Id == id);
+
+                if (pointOfInterest == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(pointOfInterest);
             }
-
-            var pointOfInterest = city.PointsOfInterest.FirstOrDefault(p => p.Id == id);
-
-            if (pointOfInterest == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogCritical($"Exception while getting points of interest for city with id {cityId}", ex);
+                return StatusCode(500, "A problem happened while handling your request.");
             }
-
-            return Ok(pointOfInterest);
         }
 
         [HttpPost("{cityId}/pointsOfInterest")]
