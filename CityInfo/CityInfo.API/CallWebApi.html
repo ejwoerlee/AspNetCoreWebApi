@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>API testing using jQuery</title>
+</head>
+<body>
+<h2> Search points of interest for city</h2>
+<div>
+    Voer id van city in: <input type="number" id="cityId" onclick="getPointsOfInterestForCity"/>
+</div>
+<p id = "pointsOfInterestResults" ></p>
+    
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous">
+</script>
+
+<script>
+    var uri = 'http://localhost:1028/api/cities/99/pointsofinterest';
+
+    function formatItem(item) {
+        return item.
+    }
+
+    function getPointsOfInterestForCity() {
+
+        var id = $('#cityId').val();
+        var uri = 'localhost:1028/api/cities/' + id + '/pointsofinterest';
+
+        // send Ajax request.
+        $.getJSON(uri)
+            .done(function(data) {
+                //on success, 'data' contains a list of pointsofinterest
+                $.each(data,
+                    function(key, item) {
+                        $('<li>', { text: formatItem(item) }).appendTo($('#pointsOfInterestResults'));
+                    });
+            });
+
+    }
+
+</script>
+
+
+</body>
+
+
+</html>
