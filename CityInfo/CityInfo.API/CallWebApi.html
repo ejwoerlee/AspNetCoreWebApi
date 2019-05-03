@@ -7,7 +7,8 @@
 <body>
 <h2> Search points of interest for city</h2>
 <div>
-    Voer id van city in: <input type="number" id="cityId" onclick="getPointsOfInterestForCity"/>
+    Voer id van city in: <input type="number" id="cityId" "/>
+    <input type="button" value="Zoeken" onclick="getPointsOfInterestForCity();"/>
 </div>
 <p id = "pointsOfInterestResults" ></p>
     
@@ -19,10 +20,9 @@
 </script>
 
 <script>
-    var uri = 'http://localhost:1028/api/cities/99/pointsofinterest';
-
+   
     function formatItem(item) {
-        return item.
+        return item.Name + ' : ' + item.Description;
     }
 
     function getPointsOfInterestForCity() {
@@ -38,8 +38,10 @@
                     function(key, item) {
                         $('<li>', { text: formatItem(item) }).appendTo($('#pointsOfInterestResults'));
                     });
-            });
-
+            })
+            .fail(function (jqXHR, textStatus, err) {
+                $('#pointsOfInterestResults').text('Error: ' + err);
+            });    
     }
 
 </script>
