@@ -9,15 +9,18 @@ namespace CityInfo.API.Controllers
     using Microsoft.AspNetCore.JsonPatch;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
+    using Services;
 
     [Route("api/cities")]
     public class PointsOfInterestController : Controller
     {
         private ILogger<PointsOfInterestController> _logger;
+        private IMailService _mailService;
 
-        public PointsOfInterestController(ILogger<PointsOfInterestController> logger)
+        public PointsOfInterestController(ILogger<PointsOfInterestController> logger, IMailService mailService)
         {
             _logger = logger;
+            _mailService = mailService;
 
             // Voorkeur heeft via constructor dependency injection.
             // Direct via de container een instantie opvragen: HttpContext.RequestServices.GetService()
@@ -41,8 +44,8 @@ namespace CityInfo.API.Controllers
         {
             try
             {
-                // test exception handling..
-                throw new Exception("Exception sample");
+                // test exception handling.. for demo purposes.
+                // throw new Exception("Exception sample");
                 //
                 var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
 
@@ -225,8 +228,8 @@ namespace CityInfo.API.Controllers
 
             city.PointsOfInterest.Remove(pointOfInterestFromStore);
 
-            //_mailService.Send("Point of interest deleted.",
-               // $"Point of interest {pointOfInterestFromStore.Name} with id {pointOfInterestFromStore.Id} was deleted.");
+            _mailService.Send("Point of interest deleted.",
+                $"Point of interest {pointOfInterestFromStore.Name} with id {pointOfInterestFromStore.Id} was deleted.");
 
 
             return NoContent();

@@ -11,26 +11,52 @@ namespace CityInfo.API
 {
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Formatters;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json.Serialization;
+    using NLog.Extensions.Logging;
+    using Services;
 
     public class Startup
     {
+        // Zelf configuration toevoegen.
+        public static IConfiguration Configuration { get; private set; };
+
+        // Zelf Startup functie toevoegen
+        public Startup(IHostingEnvironment env, IConfiguration configuration)
+        {
+            Startup.Configuration = configuration;
+
+            //var builder = new ConfigurationBuilder()
+            //              .SetBasePath(env.ContentRootPath)
+            //              .AddJsonFile("appSettings.json", optional: false, reloadOnChange:true);
+
+            //Configuration = builder.Build();
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().AddMvcOptions(AddXmlDataContract);
 
-                //.AddJsonOptions(o => {
-                //    if (o.SerializerSettings.ContractResolver != null)
-                //    {
-                //        var castedResolver = o.SerializerSettings.ContractResolver as DefaultContractResolver;
-                //        castedResolver.NamingStrategy = null;
-                //    }
-                //});
-                //.AddJsonOptions(AddOptionsForJson);
+            //.AddJsonOptions(o => {
+            //    if (o.SerializerSettings.ContractResolver != null)
+            //    {
+            //        var castedResolver = o.SerializerSettings.ContractResolver as DefaultContractResolver;
+            //        castedResolver.NamingStrategy = null;
+            //    }
+            //});
+            //.AddJsonOptions(AddOptionsForJson);
+
+            // Dependency injection. 3 methoden m.b.t. lifetime van de services.
+            // services.AddTransient<>()  // created eacht time they are requested (live-aid stateless services)
+            // services.AddScoped<>()     // created once per request
+            // services.AddSingleton<>(); // created the first time they are requested (when configureServices is run)
+
+            services.AddTransient<IMailService, LocalMailService>();
+
 
         }
 
@@ -53,7 +79,10 @@ namespace CityInfo.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             // loggerFactory.AddConsole();
-            loggerFactory.AddDebug();
+            // loggerFactory.AddDebug();
+
+            // loggerFactory.AddProvider(new NLogLoggerProvider()); -> Nlog heeft default extension method:
+           loggerFactory.AddNLog();
 
             if (env.IsDevelopment())
             {

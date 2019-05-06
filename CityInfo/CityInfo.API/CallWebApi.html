@@ -25,11 +25,14 @@
         return item.Name + ' : ' + item.Description;
     }
 
+    /*
+     * LET OP! CORS moet enabled zijn in de webapi, anders wordt deze call geblokkeerd!!
+     */
     function getPointsOfInterestForCity() {
 
         var id = $('#cityId').val();
-        var uri = 'localhost:1028/api/cities/' + id + '/pointsofinterest';
-
+        var uri = 'http://localhost:1028/api/cities/' + id + '/pointsofinterest';
+        
         // send Ajax request.
         $.getJSON(uri)
             .done(function(data) {
@@ -39,8 +42,14 @@
                         $('<li>', { text: formatItem(item) }).appendTo($('#pointsOfInterestResults'));
                     });
             })
-            .fail(function (jqXHR, textStatus, err) {
-                $('#pointsOfInterestResults').text('Error: ' + err);
+            .fail(function (jqXHR, textStatus, errorThrown) {               
+                $('#pointsOfInterestResults').html('<p>status code: ' + jqXHR.status + '</p><p>errorThrown: ' + errorThrown + '</p><p>jqXHR.responseText:</p><div>' + jqXHR.responseText + '</div>');
+                console.log('jqXHR:');
+                console.log(jqXHR);
+                console.log('textStatus:');
+                console.log(textStatus);
+                console.log('errorThrown:');
+                console.log(errorThrown);
             });    
     }
 
