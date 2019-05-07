@@ -37,6 +37,7 @@ namespace CityInfo.API
 
             //Configuration = builder.Build();
             //<<
+            
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -64,7 +65,7 @@ namespace CityInfo.API
 #else
             services.AddTransient<IMailService, CloudMailService>();
 #endif
-            var connectionString = "Server=(localdb)\\mssqllocaldb;Database=CityInfoDB;Trusted_Connection=True;";
+            var connectionString = Startup.Configuration["connectionStrings:cityInfoDBConnectionString"];
             services.AddDbContext<CityInfoContext>(o => o.UseSqlServer(connectionString));
 
         }
