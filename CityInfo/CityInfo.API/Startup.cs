@@ -21,18 +21,20 @@ namespace CityInfo.API
     public class Startup
     {
         // Zelf configuration toevoegen.
-        public static IConfiguration Configuration { get; private set; };
+        public static IConfiguration Configuration { get; private set; }
 
         // Zelf Startup functie toevoegen
         public Startup(IHostingEnvironment env, IConfiguration configuration)
         {
-            Startup.Configuration = configuration;
+            Startup.Configuration = configuration; // asp dotnet Core 2 methode..
 
-            //var builder = new ConfigurationBuilder()
+            // >> dotnet core 1.x manier:
+            //var builder = new ConfigurationBuilder() 
             //              .SetBasePath(env.ContentRootPath)
             //              .AddJsonFile("appSettings.json", optional: false, reloadOnChange:true);
 
             //Configuration = builder.Build();
+            //<<
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -55,7 +57,11 @@ namespace CityInfo.API
             // services.AddScoped<>()     // created once per request
             // services.AddSingleton<>(); // created the first time they are requested (when configureServices is run)
 
+#if DEBUG
             services.AddTransient<IMailService, LocalMailService>();
+#else
+            services.AddTransient<IMailService, CloudMailService>();
+#endif
 
 
         }
