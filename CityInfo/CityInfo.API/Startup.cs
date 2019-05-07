@@ -9,8 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CityInfo.API
 {
+    using CityInfo.API.Entities;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Formatters;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -62,7 +64,8 @@ namespace CityInfo.API
 #else
             services.AddTransient<IMailService, CloudMailService>();
 #endif
-
+            var connectionString = "Server=(localdb)\\mssqllocaldb;Database=CityInfoDB;Trusted_Connection=True;";
+            services.AddDbContext<CityInfoContext>(o => o.UseSqlServer(connectionString));
 
         }
 
