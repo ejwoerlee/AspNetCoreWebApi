@@ -33,9 +33,10 @@ namespace CityInfo.API.Services
 
         public City GetCity(int cityId, bool includePointsOfInterest)
         {
-            if (includePointsOfInterest) {
+            if (includePointsOfInterest)
+            {
                 return _context.Cities.Include(c => c.PointsOfInterest)
-                               .Where(c => c.Id == cityId).FirstOrDefault();
+                    .Where(c => c.Id == cityId).FirstOrDefault();
             }
 
             return _context.Cities.Where(c => c.Id == cityId).FirstOrDefault();
