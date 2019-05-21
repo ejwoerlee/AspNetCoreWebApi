@@ -174,7 +174,7 @@ namespace CityInfo.API.Controllers
             // return CreatedAtRoute("GetPointOfInterest", new {cityId = cityId, id = finalPointOfInterest.Id}, finalPointOfInterest);
             //<<
 
-            var finalPointOfInterest = Mapper.Map<Entities.PointOfInterest>(pointOfInterest);
+            Entities.PointOfInterest finalPointOfInterest = Mapper.Map<Entities.PointOfInterest>(pointOfInterest);
 
             _cityInfoRepository.AddPointOfInterestForCity(cityId, finalPointOfInterest);
             if (!_cityInfoRepository.Save())
@@ -182,7 +182,7 @@ namespace CityInfo.API.Controllers
                 return StatusCode(500, "A problem happened while handling your request.");
             }
 
-            var createdPointOfInterestToReturn = Mapper.Map<Models.PointOfInterestDto>(finalPointOfInterest);
+            PointOfInterestDto createdPointOfInterestToReturn = Mapper.Map<Models.PointOfInterestDto>(finalPointOfInterest);
 
             // helper methods
             return CreatedAtRoute("GetPointOfInterest", new {cityId = cityId, id = finalPointOfInterest.Id}, createdPointOfInterestToReturn);
@@ -208,25 +208,49 @@ namespace CityInfo.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
-
-            if (city == null)
+            if (!_cityInfoRepository.CityExists(cityId))
             {
                 return NotFound();
             }
 
-            var pointOfInterestFromStore = city.PointsOfInterest.FirstOrDefault(p =>
-                p.Id == id);
-
-            if (pointOfInterestFromStore == null)
+            Entities.PointOfInterest pointOfInterestEntity = _cityInfoRepository.GetPointOfInterestForCity(cityId, id);
+            if (pointOfInterestEntity == null)
             {
                 return NotFound();
             }
 
-            pointOfInterestFromStore.Name = pointOfInterest.Name;
-            pointOfInterestFromStore.Description = pointOfInterest.Description;
+            // AutoMapper will override the values in the destination object (pointOfInterestEntity) with the values in the source object(pointOfInterest)
+            Mapper.Map(pointOfInterest, pointOfInterestEntity); //src, dest
+
+            if (!_cityInfoRepository.Save())
+            {
+                return StatusCode(500, "A problem happened while handling your request.");
+            }
 
             return NoContent();
+
+            // >> Without AutoMapper, without Repository
+            //var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
+
+            //if (city == null)
+            //{
+            //    return NotFound();
+            //}
+            
+
+            //var pointOfInterestFromStore = city.PointsOfInterest.FirstOrDefault(p =>
+            //    p.Id == id);
+
+            //if (pointOfInterestFromStore == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //pointOfInterestFromStore.Name = pointOfInterest.Name;
+            //pointOfInterestFromStore.Description = pointOfInterest.Description;
+
+            //return NoContent();
+            // <<
         }
 
         [HttpPatch("{cityId}/pointsofinterest/{id}")]
